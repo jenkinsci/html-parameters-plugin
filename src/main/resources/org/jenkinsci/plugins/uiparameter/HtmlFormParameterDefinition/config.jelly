@@ -1,0 +1,28 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+  <f:entry title="Name" field="name">
+    <f:textbox />
+  </f:entry>
+
+  <f:entry title="Description" field="description">
+    <f:textarea />
+  </f:entry>
+
+  <f:entry title="HTML template" field="templateHtml">
+    <f:textarea rows="8" style="max-height: 220px; overflow: auto;" />
+  </f:entry>
+
+  <f:entry title="Custom CSS" field="customCss">
+    <f:textarea rows="6" style="max-height: 180px; overflow: auto;" />
+  </f:entry>
+
+  <f:repeatable field="mappings" minimum="0">
+    <f:entry title="Output name" field="outputName">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="Source element id" field="sourceId">
+      <f:textbox />
+    </f:entry>
+    <f:repeatableDeleteButton value="Delete" />
+  </f:repeatable>
+</j:jelly>

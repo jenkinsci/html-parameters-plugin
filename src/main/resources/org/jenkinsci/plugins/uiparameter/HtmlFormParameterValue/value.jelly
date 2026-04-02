@@ -1,0 +1,10 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
+  <j:if test="${it.sanitizedCustomCss != null and it.sanitizedCustomCss.trim().length() > 0}">
+    <style type="text/css"><j:out value="${it.sanitizedCustomCss}"/></style>
+  </j:if>
+
+  <div class="uiparameter-template uiparameter-template-readonly">
+    <j:out value="${it.readOnlyHtml}"/>
+  </div>
+</j:jelly>

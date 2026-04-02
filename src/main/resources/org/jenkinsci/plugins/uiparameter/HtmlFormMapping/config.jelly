@@ -1,0 +1,10 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+  <f:entry title="Output name" field="outputName">
+    <f:textbox />
+  </f:entry>
+  <f:entry title="Source element id" field="sourceId">
+    <f:textbox />
+  </f:entry>
+</j:jelly>
+

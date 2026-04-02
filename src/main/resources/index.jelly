@@ -1,0 +1,7 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
+  <div>
+    UI Parameter Plugin: provides a custom HTML form parameter with mapping to build variables.
+  </div>
+</j:jelly>
+
