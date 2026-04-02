@@ -83,6 +83,18 @@ This plugin accepts HTML/CSS, therefore it must defend against XSS and related i
 - **Jelly defaults**: UI templates use `escape-by-default='true'`.
 - **CSS sanitization**: `customCss` is sanitized defensively to prevent breaking out of `<style>` blocks.
 
+### ⚠️ Important warning about Custom CSS
+
+`customCss` is applied on the Jenkins “Build with Parameters” page. Even if it is sanitized to prevent breaking out of the `<style>` element, **CSS can still interfere with the Jenkins UI** in subtle ways.
+
+In particular, a user with **Job/Configure** permission can craft CSS that:
+
+- hides or repositions UI elements
+- makes dialogs/buttons look like something else
+- causes administrators (or other users) to take unintended actions
+
+Only allow trusted users to configure jobs using this parameter type. This plugin is **not** suitable for environments where job configuration is delegated to untrusted users.
+
 ### Required prefixes for `id` and `class`
 
 To avoid interfering with Jenkins UI (where ids and classes are used for styling and attaching behaviors), this plugin requires:
