@@ -10,6 +10,11 @@
 
   <f:entry title="HTML template" field="templateHtml">
     <f:textarea rows="8" style="max-height: 220px; overflow: auto;" />
+    <f:help>
+      All element <code>id</code> values and all CSS class tokens in this template must start with <code>html-parameters-</code>.
+      This prevents accidental conflicts with Jenkins UI ids/classes that are used for styling and attaching behaviors.
+      Use <strong>Custom CSS</strong> for styling instead of inline <code>style</code> attributes.
+    </f:help>
   </f:entry>
 
   <f:entry title="Custom CSS" field="customCss">
@@ -22,6 +27,9 @@
     </f:entry>
     <f:entry title="Source element id" field="sourceId">
       <f:textbox />
+      <f:help>
+        Must match the <code>id</code> attribute of an element inside the HTML template and must start with <code>html-parameters-</code>.
+      </f:help>
     </f:entry>
     <f:repeatableDeleteButton value="Delete" />
   </f:repeatable>

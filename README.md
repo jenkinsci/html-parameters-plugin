@@ -37,10 +37,10 @@ pipeline {
     uiHtmlFormParameter(
       name: 'UI',
       description: 'Custom HTML form',
-      templateHtml: '<label for=\"branch\">Branch</label><input id=\"branch\" value=\"main\" />',
+      templateHtml: '<label for=\"html-parameters-branch\">Branch</label><input id=\"html-parameters-branch\" value=\"main\" />',
       customCss: '.myForm { margin: 0; }',
       mappings: [
-        [sourceId: 'branch', outputName: 'BRANCH']
+        [sourceId: 'html-parameters-branch', outputName: 'BRANCH']
       ]
     )
   }
@@ -62,8 +62,8 @@ properties([
     [$class: 'org.jenkinsci.plugins.uiparameter.HtmlFormParameterDefinition',
       name: 'UI',
       description: 'Custom HTML form',
-      templateHtml: '<label for=\"branch\">Branch</label><input id=\"branch\" value=\"main\" />',
-      mappings: [[sourceId: 'branch', outputName: 'BRANCH']]
+      templateHtml: '<label for=\"html-parameters-branch\">Branch</label><input id=\"html-parameters-branch\" value=\"main\" />',
+      mappings: [[sourceId: 'html-parameters-branch', outputName: 'BRANCH']]
     ]
   ])
 ])
@@ -79,15 +79,24 @@ This plugin accepts HTML/CSS, therefore it must defend against XSS and related i
 
 - **HTML sanitization**: input `templateHtml` is sanitized with jsoup `Safelist.relaxed()` plus a limited set of form-related tags and attributes.
 - **No scripts / event handlers**: unsafe tags and inline event handlers are stripped during sanitization.
+- **No inline styles in HTML**: inline `style` attributes are removed from `templateHtml`. Use `customCss` instead.
 - **Jelly defaults**: UI templates use `escape-by-default='true'`.
 - **CSS sanitization**: `customCss` is sanitized defensively to prevent breaking out of `<style>` blocks.
+
+### Required prefixes for `id` and `class`
+
+To avoid interfering with Jenkins UI (where ids and classes are used for styling and attaching behaviors), this plugin requires:
+
+- Every HTML element `id` in `templateHtml` must start with `html-parameters-`
+- Every CSS class token in `templateHtml` must start with `html-parameters-`
+
+Configuration is rejected if these rules are violated.
 
 Even with sanitization, do not grant untrusted users the permission to configure jobs with arbitrary HTML/CSS.
 
 ## Compatibility
 
 - **Jenkins baseline**: see `pom.xml` (`jenkins.version`)
-- **Java**: see `pom.xml` (`java.level`)
 
 ## License
 

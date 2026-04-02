@@ -32,6 +32,9 @@ public class HtmlFormMapping extends AbstractDescribableImpl<HtmlFormMapping> {
         if (sourceId.trim().isEmpty()) {
             return "sourceId is required";
         }
+        if (!sourceId.startsWith(HtmlParametersPrefix.PREFIX)) {
+            return "sourceId must start with '" + HtmlParametersPrefix.PREFIX + "'";
+        }
         return null;
     }
 

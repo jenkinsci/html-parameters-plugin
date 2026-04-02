@@ -12,7 +12,7 @@ final class HtmlSanitizer {
         // Keep it intentionally conservative: allow basic formatting + form controls, but strip scripts/handlers.
         Safelist safelist = Safelist.relaxed()
                 .addTags("form", "input", "select", "option", "textarea", "label", "button")
-                .addAttributes(":all", "id", "class", "style", "title", "aria-label", "aria-describedby")
+                .addAttributes(":all", "id", "class", "title", "aria-label", "aria-describedby")
                 .addAttributes("input", "type", "value", "placeholder", "checked", "disabled", "readonly", "min", "max", "step")
                 .addAttributes("select", "disabled", "multiple")
                 .addAttributes("option", "value", "selected")

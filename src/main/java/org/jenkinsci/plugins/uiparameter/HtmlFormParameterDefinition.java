@@ -3,6 +3,9 @@ package org.jenkinsci.plugins.uiparameter;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
+import hudson.util.FormValidation;
+import hudson.model.Descriptor.FormException;
+import hudson.model.Failure;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
 import java.util.ArrayList;
@@ -14,9 +17,14 @@ import java.util.logging.Logger;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import org.jenkinsci.Symbol;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 public class HtmlFormParameterDefinition extends ParameterDefinition {
     private static final Logger LOGGER = Logger.getLogger(HtmlFormParameterDefinition.class.getName());
@@ -55,6 +63,7 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
 
     @DataBoundSetter
     public void setTemplateHtml(@CheckForNull String templateHtml) {
+        validateTemplateHtmlOrThrow(templateHtml);
         this.templateHtml = templateHtml;
     }
 
@@ -64,10 +73,49 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
 
     @DataBoundSetter
     public void setMappings(@CheckForNull List<HtmlFormMapping> mappings) {
+        validateMappingsOrThrow(mappings);
         if (mappings == null) {
             this.mappings = new ArrayList<>();
         } else {
             this.mappings = new ArrayList<>(mappings);
+        }
+    }
+
+    private static void validateTemplateHtmlOrThrow(@CheckForNull String templateHtml) {
+        String html = templateHtml == null ? "" : templateHtml;
+        Document doc = Jsoup.parseBodyFragment(html);
+
+        for (Element el : doc.getAllElements()) {
+            String id = el.id();
+            if (id != null && !id.isEmpty() && !id.startsWith(HtmlParametersPrefix.PREFIX)) {
+                throw new IllegalArgumentException("All element ids must start with '" + HtmlParametersPrefix.PREFIX
+                        + "' to avoid interfering with Jenkins UI. Offending id: '" + id + "'.");
+            }
+
+            String classAttr = el.className();
+            if (classAttr != null && !classAttr.trim().isEmpty()) {
+                for (String token : classAttr.trim().split("\\s+")) {
+                    if (!token.isEmpty() && !token.startsWith(HtmlParametersPrefix.PREFIX)) {
+                        throw new IllegalArgumentException("All CSS classes must start with '" + HtmlParametersPrefix.PREFIX
+                                + "' to avoid interfering with Jenkins UI. Offending class: '" + token + "'.");
+                    }
+                }
+            }
+        }
+    }
+
+    private static void validateMappingsOrThrow(@CheckForNull List<HtmlFormMapping> mappings) {
+        if (mappings == null) {
+            return;
+        }
+        for (HtmlFormMapping m : mappings) {
+            if (m == null) {
+                continue;
+            }
+            String err = m.validate();
+            if (err != null) {
+                throw new IllegalArgumentException(err);
+            }
         }
     }
 
@@ -98,6 +146,12 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
 
     @Override
     public @CheckForNull ParameterValue createValue(StaplerRequest req, JSONObject jo) {
+        try {
+            validateTemplateHtmlOrThrow(templateHtml);
+            validateMappingsOrThrow(mappings);
+        } catch (IllegalArgumentException e) {
+            throw new Failure(e.getMessage());
+        }
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("createValue(req,jo) called for param=" + getName()
                     + " jo=" + (jo == null ? "null" : jo.toString())
@@ -172,6 +226,12 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
         if (req == null) {
             return null;
         }
+        try {
+            validateTemplateHtmlOrThrow(templateHtml);
+            validateMappingsOrThrow(mappings);
+        } catch (IllegalArgumentException e) {
+            throw new Failure(e.getMessage());
+        }
 
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("createValue(req) called for param=" + getName() + " req.value=" + req.getParameter("value"));
@@ -228,6 +288,69 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
         @Override
         public @NonNull String getDisplayName() {
             return "UI HTML Form Parameter";
+        }
+
+        @Override
+        public ParameterDefinition newInstance(StaplerRequest2 req, JSONObject formData) throws FormException {
+            return bindAndValidateOrThrowFormException(req, formData);
+        }
+
+        @Override
+        public ParameterDefinition newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+            return bindAndValidateOrThrowFormException(req, formData);
+        }
+
+        private static ParameterDefinition bindAndValidateOrThrowFormException(StaplerRequest2 req, JSONObject formData) throws FormException {
+            try {
+                // bindJSON will invoke DataBoundConstructor + DataBoundSetters (which perform validation)
+                return req.bindJSON(HtmlFormParameterDefinition.class, formData);
+            } catch (IllegalArgumentException e) {
+                String msg = e.getMessage() == null ? "Invalid configuration" : e.getMessage();
+                String field = msg.contains("sourceId") ? "mappings" : "templateHtml";
+                throw new FormException(msg, field);
+            }
+        }
+
+        private static ParameterDefinition bindAndValidateOrThrowFormException(StaplerRequest req, JSONObject formData) throws FormException {
+            try {
+                // bindJSON will invoke DataBoundConstructor + DataBoundSetters (which perform validation)
+                return req.bindJSON(HtmlFormParameterDefinition.class, formData);
+            } catch (IllegalArgumentException e) {
+                String msg = e.getMessage() == null ? "Invalid configuration" : e.getMessage();
+                String field = msg.contains("sourceId") ? "mappings" : "templateHtml";
+                throw new FormException(msg, field);
+            }
+        }
+
+        public FormValidation doCheckTemplateHtml(@QueryParameter String value) {
+            String html = value == null ? "" : value;
+            Document doc = Jsoup.parseBodyFragment(html);
+
+            for (Element el : doc.getAllElements()) {
+                String id = el.id();
+                if (id != null && !id.isEmpty() && !id.startsWith(HtmlParametersPrefix.PREFIX)) {
+                    return FormValidation.error(
+                            "All element ids AND CSS classes must start with '%s' to avoid interfering with Jenkins UI. Offending id: '%s'.",
+                            HtmlParametersPrefix.PREFIX,
+                            id
+                    );
+                }
+
+                String classAttr = el.className();
+                if (classAttr != null && !classAttr.trim().isEmpty()) {
+                    for (String token : classAttr.trim().split("\\s+")) {
+                        if (!token.isEmpty() && !token.startsWith(HtmlParametersPrefix.PREFIX)) {
+                            return FormValidation.error(
+                                    "All element ids AND CSS classes must start with '%s' to avoid interfering with Jenkins UI. Offending class: '%s'.",
+                                    HtmlParametersPrefix.PREFIX,
+                                    token
+                            );
+                        }
+                    }
+                }
+            }
+
+            return FormValidation.ok();
         }
     }
 }
