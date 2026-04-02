@@ -1,0 +1,17 @@
+name: jenkins-security-scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-scan:
+    uses: jenkins-infra/.github/.github/workflows/jenkins-security-scan.yml@v1
+    secrets: inherit
+

@@ -1,0 +1,17 @@
+name: cd
+
+on:
+  workflow_dispatch:
+  check_run:
+    types:
+      - completed
+
+permissions:
+  checks: read
+  contents: write
+
+jobs:
+  cd:
+    uses: jenkins-infra/.github/.github/workflows/cd.yml@v1
+    secrets: inherit
+

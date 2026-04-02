@@ -7,13 +7,13 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.52</version>
+        <version>6.2116.v7501b_67dc517</version>
         <relativePath/>
     </parent>
 
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>html-parameters</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>${changelist}</version>
     <packaging>hpi</packaging>
 
     <name>HTML Parameters Plugin</name>
@@ -32,15 +32,6 @@
         <url>https://github.com/ivankovalenko73-alt/jenkins-ui-parameters-plugin/issues</url>
     </issueManagement>
 
-    <developers>
-        <developer>
-            <id>ivankovalenko73-alt</id>
-            <name>Ivan Kovalenko</name>
-            <email>ivan.kovalenko73@gmail.com</email>
-            <url>https://github.com/ivankovalenko73-alt</url>
-        </developer>
-    </developers>
-
     <licenses>
         <license>
             <name>MIT License</name>
@@ -49,11 +40,26 @@
     </licenses>
 
     <properties>
-        <jenkins.version>2.426.3</jenkins.version>
-        <java.level>11</java.level>
+        <jenkins.baseline>2.528</jenkins.baseline>
+        <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+        <changelist>999999-SNAPSHOT</changelist>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.threshold>Low</spotbugs.threshold>
+        <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
+        <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.jenkins.tools.bom</groupId>
+                <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                <version>${jenkins.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>

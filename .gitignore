@@ -1,6 +1,7 @@
 ### Jenkins plugin (Maven) ###
 target/
 dependency-reduced-pom.xml
+work/
 
 ### Maven release / backup files ###
 pom.xml.tag
