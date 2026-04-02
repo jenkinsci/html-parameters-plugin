@@ -66,54 +66,6 @@
         jsonInput.value = JSON.stringify(values);
       }
 
-      // Optional built-in service search/filter. Works even when template HTML is sanitized (no scripts allowed).
-      function initServiceFilter(root) {
-        var search = root.querySelector('#svcSearch');
-        var grid = root.querySelector('#svcGrid');
-        var onlyChecked = root.querySelector('#svcOnlyChecked');
-        var clearBtn = root.querySelector('#svcClear');
-        var countPill = root.querySelector('#svcCount');
-        if (!search || !grid) return;
-
-        function norm(s) { return (s || '').toLowerCase().trim(); }
-
-        function update() {
-          var q = norm(search.value);
-          var only = !!(onlyChecked && onlyChecked.checked);
-          var items = grid.querySelectorAll('.svcItem, label');
-          var visible = 0;
-          var checked = 0;
-
-          for (var i = 0; i < items.length; i++) {
-            var it = items[i];
-            var cb = it.querySelector && it.querySelector('input[type="checkbox"]');
-            if (cb && cb.checked) checked++;
-
-            var name = norm((it.getAttribute && it.getAttribute('data-name')) || it.textContent || '');
-            var ok = (!q || name.indexOf(q) >= 0);
-            if (only) ok = ok && cb && cb.checked;
-
-            it.style.display = ok ? '' : 'none';
-            if (ok) visible++;
-          }
-
-          if (countPill) countPill.textContent = checked + ' / ' + visible;
-        }
-
-        search.addEventListener('input', update, true);
-        if (onlyChecked) onlyChecked.addEventListener('change', update, true);
-        grid.addEventListener('change', update, true);
-        if (clearBtn) {
-          clearBtn.addEventListener('click', function() {
-            search.value = '';
-            if (onlyChecked) onlyChecked.checked = false;
-            update();
-          }, true);
-        }
-
-        update();
-      }
-
       function init() {
         var roots = document.querySelectorAll('.uiparameter-root');
         if (!roots || roots.length === 0) return;
@@ -129,7 +81,6 @@
 
           // Fill once immediately (useful for default values).
           fillHiddenInputs(root);
-          initServiceFilter(root);
 
           form.addEventListener('submit', function() {
             // Recompute for all roots in the same form.
