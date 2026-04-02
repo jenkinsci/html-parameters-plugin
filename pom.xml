@@ -43,7 +43,7 @@
         <jenkins.baseline>2.528</jenkins.baseline>
         <jenkins.version>${jenkins.baseline}.3</jenkins.version>
         <bom.version>6210.v69ea_fd8a_f010</bom.version>
-        <changelist>0.1.0</changelist>
+        <changelist>999999-SNAPSHOT</changelist>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.threshold>Low</spotbugs.threshold>
         <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
