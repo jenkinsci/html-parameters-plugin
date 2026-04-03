@@ -9,10 +9,10 @@ final class HtmlSanitizer {
     private HtmlSanitizer() {}
 
     static @NonNull String sanitize(@NonNull String html) {
-        // Keep it intentionally conservative: allow basic formatting + form controls, but strip scripts/handlers.
+        // Allow basic formatting + form controls and safe attributes, including inline styles.
         Safelist safelist = Safelist.relaxed()
                 .addTags("form", "input", "select", "option", "textarea", "label", "button")
-                .addAttributes(":all", "id", "class", "title", "aria-label", "aria-describedby")
+                .addAttributes(":all", "id", "class", "title", "aria-label", "aria-describedby", "style")
                 .addAttributes("input", "type", "value", "placeholder", "checked", "disabled", "readonly", "min", "max", "step")
                 .addAttributes("select", "disabled", "multiple")
                 .addAttributes("option", "value", "selected")

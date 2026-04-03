@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
   <j:if test="${it.sanitizedCustomCss != null and it.sanitizedCustomCss.trim().length() > 0}">
     <style type="text/css"><j:out value="${it.sanitizedCustomCss}"/></style>
   </j:if>
@@ -21,86 +21,5 @@
     </j:forEach>
   </div>
 
-  <script type="text/javascript"><![CDATA[
-    (function() {
-      function closestForm(el) {
-        while (el && el.tagName && el.tagName.toLowerCase() !== 'form') {
-          el = el.parentElement;
-        }
-        return el;
-      }
-
-      function readValueById(id) {
-        if (!id) return '';
-        var el = document.getElementById(id);
-        if (!el) return '';
-
-        var tag = (el.tagName || '').toLowerCase();
-        if (tag === 'input') {
-          var t = (el.type || '').toLowerCase();
-          if (t === 'checkbox') return el.checked ? 'true' : 'false';
-          if (t === 'radio') {
-            return el.checked ? (el.value || 'on') : '';
-          }
-          return el.value || '';
-        }
-        if (tag === 'select' || tag === 'textarea') {
-          return el.value || '';
-        }
-        return (el.textContent || '').trim();
-      }
-
-      function fillHiddenInputs(root) {
-        var jsonInput = root.querySelector('input.uiparameter-json[name="value"]');
-        if (!jsonInput) return;
-
-        var values = {};
-        var mappings = root.querySelectorAll('[data-uiparam-output][data-uiparam-source]');
-        for (var i = 0; i < mappings.length; i++) {
-          var node = mappings[i];
-          var outputName = node.getAttribute('data-uiparam-output');
-          var sourceId = node.getAttribute('data-uiparam-source');
-          if (!outputName) continue;
-          values[outputName] = readValueById(sourceId);
-        }
-        jsonInput.value = JSON.stringify(values);
-      }
-
-      function init() {
-        var roots = document.querySelectorAll('.uiparameter-root');
-        if (!roots || roots.length === 0) return;
-
-        // Attach listeners once per form, but update each root separately.
-        for (var r = 0; r < roots.length; r++) {
-          var root = roots[r];
-          var jsonInput = root.querySelector('input.uiparameter-json[name="value"]');
-          if (!jsonInput) continue;
-
-          var form = closestForm(jsonInput) || document.querySelector('form');
-          if (!form) continue;
-
-          // Fill once immediately (useful for default values).
-          fillHiddenInputs(root);
-
-          form.addEventListener('submit', function() {
-            // Recompute for all roots in the same form.
-            for (var i = 0; i < roots.length; i++) fillHiddenInputs(roots[i]);
-          }, true);
-          form.addEventListener('input', function() {
-            for (var i = 0; i < roots.length; i++) fillHiddenInputs(roots[i]);
-          }, true);
-          form.addEventListener('change', function() {
-            for (var i = 0; i < roots.length; i++) fillHiddenInputs(roots[i]);
-          }, true);
-          break; // one form listener is enough
-        }
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
-    })();
-  ]]></script>
+  <st:adjunct includes="org.jenkinsci.plugins.uiparameter.HtmlFormParameterDefinition.binding"/>
 </j:jelly>

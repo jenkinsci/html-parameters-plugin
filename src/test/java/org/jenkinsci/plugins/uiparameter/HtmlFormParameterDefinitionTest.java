@@ -8,7 +8,7 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 import hudson.util.FormValidation;
 import org.junit.Test;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 public class HtmlFormParameterDefinitionTest {
     @Test
@@ -25,7 +25,7 @@ public class HtmlFormParameterDefinitionTest {
         values.put("BAR", "bbb");
         jo.put("value", values.toString());
 
-        HtmlFormParameterValue v = (HtmlFormParameterValue) def.createValue((StaplerRequest) null, jo);
+        HtmlFormParameterValue v = (HtmlFormParameterValue) def.createValue((StaplerRequest2) null, jo);
         Map<String, String> map = v.getValuesByOutputName();
         assertEquals("aaa", map.get("FOO"));
         assertEquals("bbb", map.get("BAR"));

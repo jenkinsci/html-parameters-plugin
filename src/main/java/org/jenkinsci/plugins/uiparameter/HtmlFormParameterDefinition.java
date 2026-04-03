@@ -23,7 +23,6 @@ import org.jsoup.nodes.Element;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerRequest2;
 
 public class HtmlFormParameterDefinition extends ParameterDefinition {
@@ -145,7 +144,7 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
     }
 
     @Override
-    public @CheckForNull ParameterValue createValue(StaplerRequest req, JSONObject jo) {
+    public @CheckForNull ParameterValue createValue(StaplerRequest2 req, JSONObject jo) {
         try {
             validateTemplateHtmlOrThrow(templateHtml);
             validateMappingsOrThrow(mappings);
@@ -222,7 +221,7 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
     }
 
     @Override
-    public @CheckForNull ParameterValue createValue(StaplerRequest req) {
+    public @CheckForNull ParameterValue createValue(StaplerRequest2 req) {
         if (req == null) {
             return null;
         }
@@ -292,26 +291,6 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
 
         @Override
         public ParameterDefinition newInstance(StaplerRequest2 req, JSONObject formData) throws FormException {
-            return bindAndValidateOrThrowFormException(req, formData);
-        }
-
-        @Override
-        public ParameterDefinition newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            return bindAndValidateOrThrowFormException(req, formData);
-        }
-
-        private static ParameterDefinition bindAndValidateOrThrowFormException(StaplerRequest2 req, JSONObject formData) throws FormException {
-            try {
-                // bindJSON will invoke DataBoundConstructor + DataBoundSetters (which perform validation)
-                return req.bindJSON(HtmlFormParameterDefinition.class, formData);
-            } catch (IllegalArgumentException e) {
-                String msg = e.getMessage() == null ? "Invalid configuration" : e.getMessage();
-                String field = msg.contains("sourceId") ? "mappings" : "templateHtml";
-                throw new FormException(msg, field);
-            }
-        }
-
-        private static ParameterDefinition bindAndValidateOrThrowFormException(StaplerRequest req, JSONObject formData) throws FormException {
             try {
                 // bindJSON will invoke DataBoundConstructor + DataBoundSetters (which perform validation)
                 return req.bindJSON(HtmlFormParameterDefinition.class, formData);

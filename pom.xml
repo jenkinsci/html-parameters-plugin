@@ -18,18 +18,18 @@
 
     <name>HTML Parameters Plugin</name>
     <description>Custom HTML UI form parameter with mapping to build variables.</description>
-    <url>https://github.com/ivankovalenko73-alt/jenkins-ui-parameters-plugin</url>
+    <url>https://github.com/jenkinsci/html-parameters-plugin</url>
 
     <scm>
-        <connection>scm:git:https://github.com/ivankovalenko73-alt/jenkins-ui-parameters-plugin.git</connection>
-        <developerConnection>scm:git:https://github.com/ivankovalenko73-alt/jenkins-ui-parameters-plugin.git</developerConnection>
-        <url>https://github.com/ivankovalenko73-alt/jenkins-ui-parameters-plugin</url>
+        <connection>scm:git:https://github.com/jenkinsci/html-parameters-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:jenkinsci/html-parameters-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/html-parameters-plugin</url>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/ivankovalenko73-alt/jenkins-ui-parameters-plugin/issues</url>
+        <url>https://github.com/jenkinsci/html-parameters-plugin/issues</url>
     </issueManagement>
 
     <licenses>
@@ -64,10 +64,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jsoup</groupId>
+            <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.18.3</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
