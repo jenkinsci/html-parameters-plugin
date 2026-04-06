@@ -40,6 +40,10 @@ final class CustomCssValidator {
                 }
                 validatePrelude(prelude);
                 depth++;
+                if (depth == 1 && isMediaAtRule(prelude)) {
+                    // Validate selectors inside @media blocks, not the @media prelude repeatedly.
+                    ruleStart = i + 1;
+                }
                 i++;
                 continue;
             }
@@ -63,6 +67,13 @@ final class CustomCssValidator {
         if (!tail.isEmpty()) {
             throw new IllegalArgumentException("Trailing content after last rule in custom CSS.");
         }
+    }
+
+    private static boolean isMediaAtRule(@NonNull String prelude) {
+        if (prelude.charAt(0) != '@') {
+            return false;
+        }
+        return prelude.toLowerCase(Locale.ROOT).startsWith("@media");
     }
 
     private static void validatePrelude(@NonNull String prelude) {
