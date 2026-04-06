@@ -50,35 +50,69 @@
   }
 
   function init() {
-    const roots = document.querySelectorAll('.uiparameter-root');
-    if (!roots || roots.length === 0) {
+    if (window.__uiparameterBindingInit) {
       return;
     }
+    window.__uiparameterBindingInit = true;
 
-    for (const root of roots) {
-      const jsonInput = root.querySelector('input.uiparameter-json[name="value"]');
-      if (!jsonInput) {
-        continue;
+    const refreshAll = () => {
+      const currentRoots = document.querySelectorAll('.uiparameter-root');
+      for (const r of currentRoots) {
+        fillHiddenInputs(r);
       }
+    };
 
-      const form = jsonInput.closest('form') || document.querySelector('form');
-      if (!form) {
-        continue;
-      }
+    refreshAll();
 
-      fillHiddenInputs(root);
+    /* Delays: parameter UI may mount after DOMContentLoaded (dialog / React). */
+    setTimeout(refreshAll, 0);
+    setTimeout(refreshAll, 300);
+    setTimeout(refreshAll, 1000);
 
-      const refreshAll = () => {
-        for (const r of roots) {
-          fillHiddenInputs(r);
+    /*
+     * Do not require a wrapping <form>. Newer Jenkins UIs may render "Build with parameters"
+     * outside a traditional form; previously we skipped binding and left value="{}", so env
+     * injection saw empty mappings.
+     */
+    document.addEventListener(
+      'submit',
+      function () {
+        refreshAll();
+      },
+      true
+    );
+
+    document.addEventListener(
+      'input',
+      function (e) {
+        if (e.target && e.target.closest && e.target.closest('.uiparameter-root')) {
+          refreshAll();
         }
-      };
+      },
+      true
+    );
 
-      form.addEventListener('submit', refreshAll, true);
-      form.addEventListener('input', refreshAll, true);
-      form.addEventListener('change', refreshAll, true);
-      break;
-    }
+    document.addEventListener(
+      'change',
+      function (e) {
+        if (e.target && e.target.closest && e.target.closest('.uiparameter-root')) {
+          refreshAll();
+        }
+      },
+      true
+    );
+
+    /*
+     * Capture clicks so we refresh before actions that might not fire submit (e.g. some
+     * programmatic flows) or when the user hits Build in a dialog.
+     */
+    document.addEventListener(
+      'click',
+      function () {
+        refreshAll();
+      },
+      true
+    );
   }
 
   if (document.readyState === 'loading') {

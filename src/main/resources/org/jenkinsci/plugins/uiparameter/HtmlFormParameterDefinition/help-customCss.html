@@ -1,0 +1,15 @@
+<div>
+  <p>
+    Selectors must only target your parameter markup: every comma-separated selector must contain the substring
+    <code>html-parameters-</code> (for example <code>.html-parameters-panel</code> or <code>.html-parameters-root .jenkins-button</code>).
+    The rendered control is wrapped in a root element with class <code>html-parameters-root</code>.
+  </p>
+  <p>
+    Only <code>@media</code> at-rules are allowed; other <code>@</code> rules (such as <code>@import</code>) are not permitted.
+  </p>
+  <p>
+    For theme-aware colors (light/dark and other themes), prefer Jenkins CSS variables and palette classes from the
+    <a href="https://weekly.ci.jenkins.io/design-library/colors/" target="_blank" rel="noopener noreferrer">Design Library — Colors</a>
+    page instead of hard-coded color values.
+  </p>
+</div>

@@ -16,5 +16,15 @@ public class HtmlSanitizerTest {
         assertFalse(cleaned.toLowerCase().contains("style="));
         assertTrue(cleaned.contains("id=\"x\"") || cleaned.contains("id='x'"));
     }
+
+    @Test
+    public void preservesLabelForAndInputName() {
+        String html =
+                "<label class=\"html-parameters-l\" for=\"html-parameters-a\">L</label>"
+                        + "<input id=\"html-parameters-a\" type=\"radio\" name=\"html-parameters-g\" value=\"1\" />";
+        String cleaned = HtmlSanitizer.sanitize(html);
+        assertTrue(cleaned.contains("for=\"html-parameters-a\"") || cleaned.contains("for='html-parameters-a'"));
+        assertTrue(cleaned.contains("name=\"html-parameters-g\"") || cleaned.contains("name='html-parameters-g'"));
+    }
 }
 

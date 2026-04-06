@@ -1,0 +1,15 @@
+<div>
+  <p>
+    Селекторы должны затрагивать только разметку параметра: каждый селектор в списке через запятую должен содержать подстроку
+    <code>html-parameters-</code> (например <code>.html-parameters-panel</code> или <code>.html-parameters-root .jenkins-button</code>).
+    Разметка выводится внутри корневого элемента с классом <code>html-parameters-root</code>.
+  </p>
+  <p>
+    Разрешено использовать только at-правила <code>@media</code>; остальные <code>@</code>-правила (например <code>@import</code>) запрещены.
+  </p>
+  <p>
+    Для цветов с учётом темы (светлая/тёмная и др.) используйте CSS-переменные и классы палитры Jenkins из раздела
+    <a href="https://weekly.ci.jenkins.io/design-library/colors/" target="_blank" rel="noopener noreferrer">Design Library — Colors</a>,
+    а не жёстко заданные значения цвета.
+  </p>
+</div>

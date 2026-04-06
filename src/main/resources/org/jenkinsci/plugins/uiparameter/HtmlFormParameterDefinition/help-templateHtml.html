@@ -1,6 +1,24 @@
 <div>
-  All element <code>id</code> values and all CSS class tokens in this template must start with <code>html-parameters-</code>.
-  This prevents accidental conflicts with Jenkins UI ids/classes that are used for styling and attaching behaviors.
-  Use <strong>Custom CSS</strong> for styling instead of inline <code>style</code> attributes.
+  <p>
+    Every element <code>id</code> must start with <code>html-parameters-</code>.
+    Each CSS <code>class</code> token must start with <code>html-parameters-</code> or <code>jenkins-</code>,
+    as described in the Jenkins Design Library
+    <a href="https://weekly.ci.jenkins.io/design-library/stylesheets/" target="_blank" rel="noopener noreferrer">Stylesheets</a>
+    pattern (plugin-safe <code>jenkins-</code> classes).
+    Do not use <code>app-</code> classes; they are internal to Jenkins and may change without notice.
+  </p>
+  <p>
+    For colors that follow the active theme, use Jenkins palette classes and CSS variables from
+    <a href="https://weekly.ci.jenkins.io/design-library/colors/" target="_blank" rel="noopener noreferrer">Design Library — Colors</a>
+    instead of hard-coded colors.
+  </p>
+  <p>
+    Use <strong>Custom CSS</strong> for styling instead of inline <code>style</code> attributes on this template.
+  </p>
+  <p>
+    For a themed <code>&lt;select&gt;</code>, use the same structure as Jenkins <code>f:select</code>:
+    <code>&lt;div class="jenkins-select"&gt;&lt;select class="jenkins-select__input" id="html-parameters-…"&gt;…&lt;/select&gt;&lt;/div&gt;</code>
+    (keep <code>id</code> on the <code>select</code> for mappings). See
+    <a href="https://weekly.ci.jenkins.io/design-library/select" target="_blank" rel="noopener noreferrer">Design Library — Select</a>.
+  </p>
 </div>
-

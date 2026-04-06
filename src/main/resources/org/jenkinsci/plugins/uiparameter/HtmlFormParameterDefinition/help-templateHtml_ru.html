@@ -1,6 +1,24 @@
 <div>
-  Все значения атрибутов <code>id</code> элементов и все токены CSS-классов в этом шаблоне должны начинаться с <code>html-parameters-</code>.
-  Это предотвращает случайные конфликты с идентификаторами/классами интерфейса Jenkins, которые используются для оформления и привязки поведения.
-  Используйте <strong>Custom CSS</strong> для оформления, а не встроенные атрибуты <code>style</code>.
+  <p>
+    Каждый атрибут <code>id</code> элемента должен начинаться с <code>html-parameters-</code>.
+    Каждый токен CSS-класса должен начинаться с <code>html-parameters-</code> или <code>jenkins-</code>,
+    в соответствии с разделом
+    <a href="https://weekly.ci.jenkins.io/design-library/stylesheets/" target="_blank" rel="noopener noreferrer">Stylesheets</a>
+    Jenkins Design Library (классы <code>jenkins-</code> допустимы в плагинах).
+    Не используйте классы <code>app-</code> — они считаются внутренними для Jenkins и могут меняться без предупреждения.
+  </p>
+  <p>
+    Для цветов с учётом активной темы используйте классы палитры и CSS-переменные Jenkins из
+    <a href="https://weekly.ci.jenkins.io/design-library/colors/" target="_blank" rel="noopener noreferrer">Design Library — Colors</a>,
+    а не жёстко заданные цвета.
+  </p>
+  <p>
+    Для оформления используйте поле <strong>Custom CSS</strong>, а не встроенные атрибуты <code>style</code> в этом шаблоне.
+  </p>
+  <p>
+    Чтобы выпадающий список <code>&lt;select&gt;</code> выглядел как в Jenkins, повторите разметку <code>f:select</code>:
+    <code>&lt;div class="jenkins-select"&gt;&lt;select class="jenkins-select__input" id="html-parameters-…"&gt;…&lt;/select&gt;&lt;/div&gt;</code>
+    (атрибут <code>id</code> оставьте на <code>select</code> для сопоставления). См.
+    <a href="https://weekly.ci.jenkins.io/design-library/select" target="_blank" rel="noopener noreferrer">Design Library — Select</a>.
+  </p>
 </div>
-

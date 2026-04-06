@@ -4,7 +4,7 @@
     <style type="text/css"><j:out value="${it.sanitizedCustomCss}"/></style>
   </j:if>
 
-  <div class="uiparameter-template uiparameter-template-readonly">
+  <div class="uiparameter-template uiparameter-template-readonly html-parameters-root">
     <j:out value="${it.readOnlyHtml}"/>
   </div>
 </j:jelly>

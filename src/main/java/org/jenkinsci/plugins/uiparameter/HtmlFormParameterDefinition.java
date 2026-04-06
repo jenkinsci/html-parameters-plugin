@@ -94,9 +94,11 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
             String classAttr = el.className();
             if (classAttr != null && !classAttr.trim().isEmpty()) {
                 for (String token : classAttr.trim().split("\\s+")) {
-                    if (!token.isEmpty() && !token.startsWith(HtmlParametersPrefix.PREFIX)) {
-                        throw new IllegalArgumentException("All CSS classes must start with '" + HtmlParametersPrefix.PREFIX
-                                + "' to avoid interfering with Jenkins UI. Offending class: '" + token + "'.");
+                    if (!token.isEmpty() && !TemplateHtmlClassRules.isAllowedClassToken(token)) {
+                        throw new IllegalArgumentException(
+                                "Each CSS class token must start with '" + HtmlParametersPrefix.PREFIX
+                                        + "' or 'jenkins-' (Jenkins Design Library). "
+                                        + "Do not use 'app-' classes. Offending class: '" + token + "'.");
                     }
                 }
             }
@@ -129,13 +131,23 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
 
     @DataBoundSetter
     public void setCustomCss(@CheckForNull String customCss) {
+        if (customCss != null && !customCss.isBlank()) {
+            CustomCssValidator.validateOrThrow(prepareCustomCssText(customCss));
+        }
         this.customCss = customCss;
     }
 
     public @NonNull String getSanitizedCustomCss() {
         String css = customCss == null ? "" : customCss;
+        css = prepareCustomCssText(css);
+        CustomCssValidator.validateOrThrow(css);
+        return css;
+    }
 
-        // Prevent breaking out of <style> and injecting HTML/Jelly.
+    /**
+     * Prevent breaking out of {@code <style>} and injecting HTML/Jelly.
+     */
+    private static @NonNull String prepareCustomCssText(@NonNull String css) {
         css = css.replaceAll("(?i)</\\s*style\\s*>", "");
         css = css.replace("<", "");
         css = css.replace(">", "");
@@ -169,6 +181,20 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
             }
         }
 
+        JSONObject reqValues = null;
+        if (req != null) {
+            String json = req.getParameter("value");
+            if (json != null) {
+                try {
+                    reqValues = (JSONObject) JSONSerializer.toJSON(json);
+                } catch (RuntimeException ignored) {
+                    reqValues = null;
+                }
+            }
+        }
+
+        Map<String, String> templateDefaults =
+                HtmlFormDefaultValues.fromSanitizedTemplate(getSanitizedTemplateHtml(), mappings);
         Map<String, String> out = new LinkedHashMap<>();
         Map<String, String> sourceIdByOutput = new LinkedHashMap<>();
 
@@ -182,24 +208,19 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
             }
             sourceIdByOutput.put(outputName, m.getSourceId());
 
+            boolean submittedKeyPresent = false;
             String v = "";
             if (values != null && values.has(outputName)) {
+                submittedKeyPresent = true;
                 Object raw = values.get(outputName);
                 v = raw == null ? "" : String.valueOf(raw);
-            } else if (req != null) {
-                // Fallback for non-structured form submit: request parameter "value" is JSON string.
-                String json = req.getParameter("value");
-                if (json != null) {
-                    try {
-                        JSONObject reqValues = (JSONObject) JSONSerializer.toJSON(json);
-                        if (reqValues.has(outputName)) {
-                            Object raw = reqValues.get(outputName);
-                            v = raw == null ? "" : String.valueOf(raw);
-                        }
-                    } catch (RuntimeException ignored) {
-                        // ignore
-                    }
-                }
+            } else if (reqValues != null && reqValues.has(outputName)) {
+                submittedKeyPresent = true;
+                Object raw = reqValues.get(outputName);
+                v = raw == null ? "" : String.valueOf(raw);
+            }
+            if (v.isEmpty() && !submittedKeyPresent) {
+                v = templateDefaults.getOrDefault(outputName, "");
             }
             out.put(outputName, v);
         }
@@ -213,6 +234,43 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
         return new HtmlFormParameterValue(
                 getName(),
                 out,
+                sourceIdByOutput,
+                getSanitizedTemplateHtml(),
+                getSanitizedCustomCss(),
+                readOnlyHtml
+        );
+    }
+
+    @Override
+    public @NonNull ParameterValue getDefaultParameterValue() {
+        try {
+            validateTemplateHtmlOrThrow(templateHtml);
+            validateMappingsOrThrow(mappings);
+        } catch (IllegalArgumentException e) {
+            LOGGER.log(Level.FINE, "HTML form parameter ''{0}'': no defaults ({1})", new Object[] {getName(), e.getMessage()});
+            return new HtmlFormParameterValue(getName(), new LinkedHashMap<>());
+        }
+        Map<String, String> defaults =
+                HtmlFormDefaultValues.fromSanitizedTemplate(getSanitizedTemplateHtml(), mappings);
+        Map<String, String> sourceIdByOutput = new LinkedHashMap<>();
+        for (HtmlFormMapping m : mappings) {
+            if (m == null) {
+                continue;
+            }
+            String outputName = m.getOutputName();
+            if (outputName.trim().isEmpty()) {
+                continue;
+            }
+            sourceIdByOutput.put(outputName, m.getSourceId());
+        }
+        String readOnlyHtml = HtmlReadOnlyRenderer.renderReadOnly(
+                getSanitizedTemplateHtml(),
+                sourceIdByOutput,
+                defaults
+        );
+        return new HtmlFormParameterValue(
+                getName(),
+                defaults,
                 sourceIdByOutput,
                 getSanitizedTemplateHtml(),
                 getSanitizedCustomCss(),
@@ -236,6 +294,8 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
             LOGGER.fine("createValue(req) called for param=" + getName() + " req.value=" + req.getParameter("value"));
         }
 
+        Map<String, String> templateDefaults =
+                HtmlFormDefaultValues.fromSanitizedTemplate(getSanitizedTemplateHtml(), mappings);
         Map<String, String> out = new LinkedHashMap<>();
         Map<String, String> sourceIdByOutput = new LinkedHashMap<>();
 
@@ -258,10 +318,14 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
                 continue;
             }
             sourceIdByOutput.put(outputName, m.getSourceId());
+            boolean submittedKeyPresent = reqValues != null && reqValues.has(outputName);
             String v = "";
-            if (reqValues != null && reqValues.has(outputName)) {
+            if (submittedKeyPresent) {
                 Object raw = reqValues.get(outputName);
                 v = raw == null ? "" : String.valueOf(raw);
+            }
+            if (v.isEmpty() && !submittedKeyPresent) {
+                v = templateDefaults.getOrDefault(outputName, "");
             }
             out.put(outputName, v);
         }
@@ -296,7 +360,14 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
                 return req.bindJSON(HtmlFormParameterDefinition.class, formData);
             } catch (IllegalArgumentException e) {
                 String msg = e.getMessage() == null ? "Invalid configuration" : e.getMessage();
-                String field = msg.contains("sourceId") ? "mappings" : "templateHtml";
+                String field;
+                if (msg.contains("sourceId")) {
+                    field = "mappings";
+                } else if (msg.contains("custom CSS")) {
+                    field = "customCss";
+                } else {
+                    field = "templateHtml";
+                }
                 throw new FormException(msg, field);
             }
         }
@@ -309,7 +380,7 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
                 String id = el.id();
                 if (id != null && !id.isEmpty() && !id.startsWith(HtmlParametersPrefix.PREFIX)) {
                     return FormValidation.error(
-                            "All element ids AND CSS classes must start with '%s' to avoid interfering with Jenkins UI. Offending id: '%s'.",
+                            "All element ids must start with '%s' to avoid interfering with Jenkins UI. Offending id: '%s'.",
                             HtmlParametersPrefix.PREFIX,
                             id
                     );
@@ -318,9 +389,10 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
                 String classAttr = el.className();
                 if (classAttr != null && !classAttr.trim().isEmpty()) {
                     for (String token : classAttr.trim().split("\\s+")) {
-                        if (!token.isEmpty() && !token.startsWith(HtmlParametersPrefix.PREFIX)) {
+                        if (!token.isEmpty() && !TemplateHtmlClassRules.isAllowedClassToken(token)) {
                             return FormValidation.error(
-                                    "All element ids AND CSS classes must start with '%s' to avoid interfering with Jenkins UI. Offending class: '%s'.",
+                                    "Each CSS class token must start with '%s' or 'jenkins-' (Jenkins Design Library). "
+                                            + "Do not use 'app-' classes. Offending class: '%s'.",
                                     HtmlParametersPrefix.PREFIX,
                                     token
                             );
@@ -329,6 +401,19 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
                 }
             }
 
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckCustomCss(@QueryParameter String value) {
+            String css = value == null ? "" : value;
+            if (css.isBlank()) {
+                return FormValidation.ok();
+            }
+            try {
+                CustomCssValidator.validateOrThrow(prepareCustomCssText(css));
+            } catch (IllegalArgumentException e) {
+                return FormValidation.error(e.getMessage());
+            }
             return FormValidation.ok();
         }
     }

@@ -5,9 +5,11 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import java.io.Serializable;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class HtmlFormMapping extends AbstractDescribableImpl<HtmlFormMapping> {
+public class HtmlFormMapping extends AbstractDescribableImpl<HtmlFormMapping> implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final @NonNull String outputName;
     private final @NonNull String sourceId;
 

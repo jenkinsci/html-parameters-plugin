@@ -5,7 +5,7 @@
   </j:if>
 
   <!-- Structured form submission expects repeated 'parameter' blocks with {name,value}. -->
-  <div class="uiparameter-root" name="parameter">
+  <div class="uiparameter-root html-parameters-root" name="parameter">
     <input type="hidden" name="name" value="${it.name}" />
     <input type="hidden" class="uiparameter-json" name="value" value="{}" />
 
