@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.uiparameter;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import java.util.Locale;
 import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -37,9 +38,9 @@ final class HtmlReadOnlyRenderer {
                 continue;
             }
 
-            String tag = el.tagName().toLowerCase();
+            String tag = el.tagName().toLowerCase(Locale.ROOT);
             if ("input".equals(tag)) {
-                String type = el.attr("type").toLowerCase();
+                String type = el.attr("type").toLowerCase(Locale.ROOT);
                 if ("checkbox".equals(type)) {
                     boolean checked = "true".equalsIgnoreCase(value);
                     if (checked) {
