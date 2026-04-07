@@ -1,13 +1,14 @@
 package org.jenkinsci.plugins.uiparameter;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class HtmlSanitizerTest {
+class HtmlSanitizerTest {
+
     @Test
-    public void stripsScriptTagsAndEventHandlers() {
+    void stripsScriptTagsAndEventHandlers() {
         String html = "<div><input id='x' value='1' onclick='alert(1)' style='color:red'></div><script>alert(2)</script>";
         String cleaned = HtmlSanitizer.sanitize(html);
 
@@ -18,7 +19,7 @@ public class HtmlSanitizerTest {
     }
 
     @Test
-    public void preservesLabelForAndInputName() {
+    void preservesLabelForAndInputName() {
         String html =
                 "<label class=\"html-parameters-l\" for=\"html-parameters-a\">L</label>"
                         + "<input id=\"html-parameters-a\" type=\"radio\" name=\"html-parameters-g\" value=\"1\" />";
