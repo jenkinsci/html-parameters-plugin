@@ -6,11 +6,15 @@ import hudson.model.AbstractBuild;
 import hudson.model.ParameterValue;
 import hudson.model.Run;
 import hudson.util.VariableResolver;
+import java.io.Serial;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class HtmlFormParameterValue extends ParameterValue {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
     /**
      * Must be XStream-friendly (avoid Collections.unmodifiableMap wrappers).
      */

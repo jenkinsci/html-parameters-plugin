@@ -1,13 +1,14 @@
 package org.jenkinsci.plugins.uiparameter;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class HtmlFormDefaultValuesTest {
+class HtmlFormDefaultValuesTest {
+
     @Test
-    public void readsInputValueAttribute() {
+    void readsInputValueAttribute() {
         String html = "<input id=\"html-parameters-x\" value=\"main\" />";
         assertEquals(
                 "main",
@@ -18,7 +19,7 @@ public class HtmlFormDefaultValuesTest {
     }
 
     @Test
-    public void readsCheckboxUnchecked() {
+    void readsCheckboxUnchecked() {
         String html = "<input id=\"html-parameters-c\" type=\"checkbox\" />";
         assertEquals(
                 "false",
@@ -29,7 +30,7 @@ public class HtmlFormDefaultValuesTest {
     }
 
     @Test
-    public void readsCheckboxChecked() {
+    void readsCheckboxChecked() {
         String html = "<input id=\"html-parameters-c\" type=\"checkbox\" checked />";
         assertEquals(
                 "true",

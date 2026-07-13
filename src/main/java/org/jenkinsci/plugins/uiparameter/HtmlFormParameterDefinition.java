@@ -2,12 +2,13 @@ package org.jenkinsci.plugins.uiparameter;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.util.FormValidation;
-import hudson.model.Descriptor.FormException;
 import hudson.model.Failure;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,6 +27,8 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest2;
 
 public class HtmlFormParameterDefinition extends ParameterDefinition {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(HtmlFormParameterDefinition.class.getName());
 
     private final @NonNull String name;
@@ -354,7 +357,8 @@ public class HtmlFormParameterDefinition extends ParameterDefinition {
         }
 
         @Override
-        public ParameterDefinition newInstance(StaplerRequest2 req, JSONObject formData) throws FormException {
+        @SuppressFBWarnings("NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE")
+        public ParameterDefinition newInstance(StaplerRequest2 req, @NonNull JSONObject formData) throws FormException {
             try {
                 // bindJSON will invoke DataBoundConstructor + DataBoundSetters (which perform validation)
                 return req.bindJSON(HtmlFormParameterDefinition.class, formData);
